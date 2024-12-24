@@ -1,0 +1,15 @@
+C:\Users\baha.fayad\Desktop\RestaurantManager\RestaurantManager\bin\Debug\net8.0\RestaurantManager.exe
+C:\Users\baha.fayad\Desktop\RestaurantManager\RestaurantManager\bin\Debug\net8.0\RestaurantManager.deps.json
+C:\Users\baha.fayad\Desktop\RestaurantManager\RestaurantManager\bin\Debug\net8.0\RestaurantManager.runtimeconfig.json
+C:\Users\baha.fayad\Desktop\RestaurantManager\RestaurantManager\bin\Debug\net8.0\RestaurantManager.dll
+C:\Users\baha.fayad\Desktop\RestaurantManager\RestaurantManager\bin\Debug\net8.0\RestaurantManager.pdb
+C:\Users\baha.fayad\Desktop\RestaurantManager\RestaurantManager\obj\Debug\net8.0\RestaurantManager.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\baha.fayad\Desktop\RestaurantManager\RestaurantManager\obj\Debug\net8.0\RestaurantManager.AssemblyInfoInputs.cache
+C:\Users\baha.fayad\Desktop\RestaurantManager\RestaurantManager\obj\Debug\net8.0\RestaurantManager.AssemblyInfo.cs
+C:\Users\baha.fayad\Desktop\RestaurantManager\RestaurantManager\obj\Debug\net8.0\RestaurantManager.csproj.CoreCompileInputs.cache
+C:\Users\baha.fayad\Desktop\RestaurantManager\RestaurantManager\obj\Debug\net8.0\RestaurantManager.sourcelink.json
+C:\Users\baha.fayad\Desktop\RestaurantManager\RestaurantManager\obj\Debug\net8.0\RestaurantManager.dll
+C:\Users\baha.fayad\Desktop\RestaurantManager\RestaurantManager\obj\Debug\net8.0\refint\RestaurantManager.dll
+C:\Users\baha.fayad\Desktop\RestaurantManager\RestaurantManager\obj\Debug\net8.0\RestaurantManager.pdb
+C:\Users\baha.fayad\Desktop\RestaurantManager\RestaurantManager\obj\Debug\net8.0\RestaurantManager.genruntimeconfig.cache
+C:\Users\baha.fayad\Desktop\RestaurantManager\RestaurantManager\obj\Debug\net8.0\ref\RestaurantManager.dll
