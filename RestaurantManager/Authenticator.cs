@@ -4,17 +4,17 @@ using System.Text;
 class Authenticator
 {
     /// <summary>
-    /// Validates a user account in list of users.
+    /// Validates an account in list of accounts.
     /// </summary>
     /// <param name="users"></param>
     /// <param name="username"></param>
     /// <param name="password"></param>
     /// <returns>true when a user is found or false if not found</returns>
-    public static bool ValidateUser(List<User> users, string username, string password)
+    public static bool ValidateUser(List<Account> users, string username, string password)
     {
-        foreach (User user in users)
+        foreach (Account account in users)
         {
-            if (user.username == username && VerifyPassword(password, HashPassword(password)))
+            if (account.username == username && HashPassword(password) == account.passwordHash)
             {
                 return true;
             }

@@ -1,8 +1,26 @@
 using System.ComponentModel;
 using System.Security.Cryptography.X509Certificates;
 
-class CredentialPrompts{
-    
+class CredentialPrompts
+{
+    public static float HandledReadFloat(string context)
+    {
+        while (true)
+        {
+
+            Console.Write(context);
+            string costString = Console.ReadLine();
+            float cost;
+            if (float.TryParse(costString, out cost))
+            {
+                return cost;
+            }
+            else
+            {
+                Console.WriteLine("Wrong format! please enter a number with no letters. Ex: 125.99");
+            }
+        }
+    }
 
     public static string HandledReadUserName()
     {
@@ -32,7 +50,7 @@ class CredentialPrompts{
             }
             else
             {
-                
+
                 return password;
             }
         }

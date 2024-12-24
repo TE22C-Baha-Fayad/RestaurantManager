@@ -1,18 +1,25 @@
+using System.Net.Http.Headers;
+
 class Database{
-    public List<User> userData = new List<User>();
+    public List<Account> accountData = new List<Account>();
+    public List<Item> items = new List<Item>();
 
-
-    public void SaveUser(User user){
-        userData.Add(user);
+    public void SaveUser(Account user){
+        accountData.Add(user);
     }
-    public User GetUser(string username)
+    public Account GetUser(string username)
     {
-        foreach(User user in userData)
+        foreach(Account account in accountData)
         {
-            if(user.username == username){
-                return user;
+            if(account.username == username){
+                return account;
             }
         }
         return null;
     }
+    public Item GetItemByIndex(int index)
+    {
+       return items[index];
+    }
+
 }

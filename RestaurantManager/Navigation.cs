@@ -26,7 +26,7 @@ class Navigation
                 lastcursorYPosition--;
 
             }
-            else if (key == ConsoleKey.DownArrow && lastcursorYPosition < innitialCursorY + 2)
+            else if (key == ConsoleKey.DownArrow && lastcursorYPosition < innitialCursorY + Options.Count-1)
             {
 
                 lastcursorYPosition++;
