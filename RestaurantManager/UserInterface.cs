@@ -1,14 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Reflection.Metadata;
 
 class UserInterface
 {
-    private Database _database;
-
-    public UserInterface(Database database)
-    {
-        _database = database;
-    }
     public static void DisplayMainMenu(Database database)
     {
 
@@ -36,13 +31,56 @@ class UserInterface
         }
 
     }
-
-    private static void DisplayUserPage(User user)
+    static bool CheckAndHandleItemListEmpty(Database database)
     {
+        if (database.items.Count == 0)
+        {
+            DisplayMessage("There are no Items, Press any key to return...");
+            Console.ReadKey();
+            return true;
+        }
+        return false;
+    }
 
+    private static void DisplayUserPage(User user, Database database)
+    {
+        while (true)
+        {
+
+            string header = $"Hi {user.username}, what are you willing to do?";
+            List<string> options = new List<string>() { "Browse Items - allows you to browse items and add to your shopping cart.",
+            "View Cart - Shows items inside your shopping cart.",
+             "Remove Cart Item - Removes an item from your shopping cart.",
+              "CheckOut - removes a published item.",
+               "Logout - Returns back to main menu." };
+            int option = Navigation.DisplayNavigation(header, options);
+
+            switch (option)
+            {
+                case 0:
+                    if (CheckAndHandleItemListEmpty(database))
+                    {
+                        break;
+                    }
+                    user.BrowseItems(database);
+                    break;
+                case 1:
+                    user.ViewCartItems();
+                    break;
+                case 2:
+                    user.RemoveCartItem();
+                    break;
+                case 3:
+                    user.CheckOut();
+                    break;
+                case 4:
+                    return;
+            }
+        }
     }
     private static void DisplayAdminPage(Admin admin, Database database)
     {
+
         while (true)
         {
 
@@ -51,29 +89,35 @@ class UserInterface
             "List New Item - adds an item for users.",
              "Edit Item - edits properties that belongs to an Item.",
               "Remove an Item - removes a published item.",
-               "Return - Returns back to main menu." };
+               "Logout - Returns back to main menu." };
             int option = Navigation.DisplayNavigation(header, options);
 
             switch (option)
             {
                 case 0:
-                admin.ViewItems(database);
-                break;
+                    if (CheckAndHandleItemListEmpty(database))
+                    {
+                        continue;
+                    }
+                    admin.ViewItems(database);
+                    break;
                 case 1:
                     admin.ListNewItem(database);
                     break;
                 case 2:
-                    if (database.items.Count == 0)
+
+                    if (CheckAndHandleItemListEmpty(database))
                     {
-                        DisplayMessage("There are no Items, Press any key to return...");
-                        Console.ReadKey();
                         continue;
                     }
-
                     admin.EditItem(database);
 
                     break;
                 case 3:
+                    if (CheckAndHandleItemListEmpty(database))
+                    {
+                        continue;
+                    }
                     admin.RemoveItem(database);
                     break;
                 case 4:
@@ -83,62 +127,31 @@ class UserInterface
     }
     private static void DisplayLoginScreen(Database database)
     {
-        string header = "What type of account would you like to Login as?";
-        List<string> options = new List<string>() { "User Account - Recommended for users.", "Admin Account - For Restaurant staff only.", "Return - Returns back to main menu." };
-        int option = Navigation.DisplayNavigation(header, options);
-        bool isAdmin = false;
-        switch (option)
-        {
-            case 0:
-                isAdmin = false;
-                break;
-            case 1:
-                isAdmin = true;
-                break;
-            case 2:
-                return;
-        }
-
         string username = CredentialPrompts.HandledReadUserName();
         string password = CredentialPrompts.HandledReadPassword();
-
-
-        if (isAdmin)
+        Account account = Account.Login(username, password, database);
+        if (account != null)
         {
-            Admin admin = new Admin(username, password);
-            bool loginSuccessful = admin.Login(database);
-            if (loginSuccessful)
+            if (account.GetType() == typeof(Admin))
             {
-                DisplayMessage("Login Successful! Press any key to continue...");
+                Admin admin = (Admin)account;
+                DisplayMessage("Login Successful for Admin Account! Press any key to continue...");
                 Console.ReadKey();
                 DisplayAdminPage(admin, database);
             }
-            else
+            else if (account.GetType() == typeof(User))
             {
-                DisplayMessage("user not found, username and password is wrong! Press any key to return...");
+                User user = (User)account;
+                DisplayMessage("Login Successful! Press any key to continue...");
                 Console.ReadKey();
+                DisplayUserPage(user, database);
             }
-
         }
         else
         {
-            User user = new User(username, password);
-            bool loginSuccessful = user.Login(database);
-            if (loginSuccessful)
-            {
-                DisplayMessage("Login Successful! Press any key to continue...");
-                Console.ReadKey();
-                DisplayUserPage(user);
-            }
-            else
-            {
-                DisplayMessage("user not found, username and password is wrong! Press any key to return...");
-                Console.ReadKey();
-            }
+            DisplayMessage("account not found, username and/or password is wrong! Press any key to return...");
+            Console.ReadKey();
         }
-
-
-
     }
     private static void DisplayRegisterScreen(Database database)
     {
@@ -200,11 +213,18 @@ class UserInterface
         }
         string hashedPassword = Authenticator.HashPassword(password);
         if (isAdmin)
+        {
             Admin.Register(username, hashedPassword, database);
+            DisplayMessage("User Account is now Registered please press any key to return...");
+            Console.ReadKey();
+        }
         else
+        {
+
             User.Register(username, hashedPassword, database);
-        DisplayMessage("User Account is now Registered please press any key to return...");
-        Console.ReadKey();
+            DisplayMessage("User Account is now Registered please press any key to return...");
+            Console.ReadKey();
+        }
 
     }
     private static void DisplayMessage(string message)

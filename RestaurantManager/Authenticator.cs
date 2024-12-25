@@ -8,18 +8,18 @@ class Authenticator
     /// </summary>
     /// <param name="users"></param>
     /// <param name="username"></param>
-    /// <param name="password"></param>
-    /// <returns>true when a user is found or false if not found</returns>
-    public static bool ValidateUser(List<Account> users, string username, string password)
+    /// <param name="passwordTxt"></param>
+    /// <returns></returns>
+    public static Account ValidateUser(List<Account> users, string username, string passwordTxt)
     {
         foreach (Account account in users)
         {
-            if (account.username == username && HashPassword(password) == account.passwordHash)
+            if (account.username == username && HashPassword(passwordTxt) == account.passwordHash)
             {
-                return true;
+                return account;
             }
         }
-        return false;
+        return null;
     }
     public static string HashPassword(string password)
     {
