@@ -1,6 +1,6 @@
 class Navigation
 {
-    public static int DisplayNavigation(string header, List<string> Options, int innitialCursorY = 1, int jumpsteps = 1, Action action = default)
+    public static int DisplayNavigation(string header, List<string> Options, int innitialCursorY = 1, int jumpsteps = 1)
     {
         Console.CursorVisible = false;
         int lastcursorYPosition = innitialCursorY;
@@ -12,20 +12,9 @@ class Navigation
             {
                 Console.WriteLine($"  {option}");
             }
-
             Console.SetCursorPosition(0, lastcursorYPosition);
             string navigationCharacter = "=>";
             Console.Write(navigationCharacter);
-
-            // BUG: the action method is bugging in this combination.
-            if (action != default)
-            {
-                Console.WriteLine();
-                action?.Invoke();
-                Console.WriteLine();
-            }
-                
-
             ConsoleKey key = Console.ReadKey().Key;
 
             if (key == ConsoleKey.UpArrow && lastcursorYPosition > innitialCursorY)

@@ -52,6 +52,7 @@ class UserInterface
             "View Cart - Shows items inside your shopping cart.",
              "Remove Cart Item - Removes an item from your shopping cart.",
               "CheckOut - removes a published item.",
+              "Add/Check Credits - allows you to view or add credits",
                "Logout - Returns back to main menu." };
             int option = Navigation.DisplayNavigation(header, options);
 
@@ -74,6 +75,9 @@ class UserInterface
                     user.CheckOut();
                     break;
                 case 4:
+                    user.SeeOrAddCredits();
+                    break;
+                case 5:
                     return;
             }
         }

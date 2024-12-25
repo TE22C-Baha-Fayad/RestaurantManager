@@ -11,7 +11,7 @@ class Account
 
     public static Account Login(string username, string passwordTxt, Database database)
     {
-       
+
         Account account = Authenticator.ValidateUser(database.accountData, username, passwordTxt);
         if (account != null)
         {
@@ -204,10 +204,12 @@ class User : Account
     }
     public void CheckOut()
     {
-        // TODO: group same items ex: 5x pizza, 3x hamburger.
+        PresentShoppingCart();
+        Console.WriteLine("Press any key to continue...");
+        Console.ReadKey();
         string header = "Are you sure you want to buy these items?";
         List<string> options = new List<string>() { "Yes", "No" };
-        int option = Navigation.DisplayNavigation(header, options,1,1,PresentShoppingCart);
+        int option = Navigation.DisplayNavigation(header, options);
         float totalPrice = 0;
         foreach (Item item in ShoppinCartItems)
         {
@@ -229,12 +231,47 @@ class User : Account
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey();
                 break;
-                case 1:
+            case 1:
                 Console.WriteLine("Payment Cancelled! Press any key to continue...");
                 Console.ReadKey();
                 break;
         }
 
+
+    }
+    public void SeeOrAddCredits()
+    {
+        string header = $"You have {credits}kr available, do you want to add more Credits?";
+        List<string> options = new List<string>() { "Yes", "No" };
+        int option = Navigation.DisplayNavigation(header, options);
+
+        switch (option)
+        {
+            case 0:
+                AddCredits();
+                break;
+            case 1:
+                break;
+        }
+
+
+        void AddCredits()
+        {
+            Console.WriteLine("How much do you want to add?");
+            float count = CredentialPrompts.HandledReadFloat("Ammount: ");
+            string inputPassword = CredentialPrompts.HandledReadPassword("Please Enter your password to confirm: ");
+            if (Authenticator.HashPassword(inputPassword) == passwordHash)
+            {
+                credits += count;
+                Console.WriteLine("Credits are now added, press any key to continue...");
+                Console.ReadKey();
+            }
+            else
+            {
+                Console.WriteLine("Wrong password! Credits not added, press any key to return...");
+                Console.ReadKey();
+            }
+        }
 
     }
 

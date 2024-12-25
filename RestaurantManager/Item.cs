@@ -20,7 +20,7 @@ class Item
     }
     public string GetInfo()
     {
-        string content = $"Name: {name}\nDescription: {description}\nCost: {price}kr\n-------------------------------------";
+        string content = $"Name: {name} | Cost: {price}kr | Description: {description}|";
         return content;
     }
 
