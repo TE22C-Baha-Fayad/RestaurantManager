@@ -1,10 +1,18 @@
 
 //Represents a general account with basic login functionality
+using System.Collections;
+using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
+
 class Account : IAccount
 {
     //declaring properties to store username and passwordhash for an account
+    [JsonInclude]
     public string Username { get; protected set; }
+    [JsonInclude]
     public string PasswordHash { get; protected set; }
+    [JsonInclude]
+    public bool IsAdmin { get; protected set; }
 
 
 
@@ -30,7 +38,7 @@ class Account : IAccount
 //A child class that represents an Admin account
 class Admin : Account
 {
-    
+
     /// <summary>
     /// a constructor with the parameters username and password to create an admin account.
     /// </summary>
@@ -40,6 +48,7 @@ class Admin : Account
     {
         Username = username;
         PasswordHash = password;
+        IsAdmin = true;
     }
     /// <summary>
     /// Registers an Admin account into a database.
@@ -50,7 +59,7 @@ class Admin : Account
     public static void Register(string username, string password, Database database)
     {
         //create an admin account.
-        Admin admin = new(username, password);
+        Admin admin = new(username, password) { IsAdmin = true };
         //save to data base
         database.SaveUser(admin);
     }
@@ -115,7 +124,7 @@ class Admin : Account
         while (true)
         {
             //Prepare contents of a navigation menu.
-            string header = "Choose An Item Navigate Using (Up&Down) Arrows And Press (Enter) To Confirm:";
+            string header = "";
             List<string> options = new List<string>();
             //adds all items names in the database itemslist as options.
             for (int i = 0; i < database.Items.Count; i++)
@@ -133,7 +142,7 @@ class Admin : Account
             Console.ReadKey();
             //previous info were shown and now...
             //prepare for a new navigation to edit a specific property.
-            header = "Choose A Property Navigate Using (Up&Down) Arrows And Press (Enter) To Confirm:";
+            header = "";
             options = new List<string>() { "Item Name", "Item Description", "Item Cost", "Return back" };
             //create the navigation
             option = Navigation.DisplayNavigation(header, options);
@@ -178,22 +187,38 @@ class Admin : Account
     public static void RemoveItem(Database database)
     {
         //prepare contents of navigation menu.
-        string header = "Choose An Item Navigate Using (Up&Down) Arrows And Press (Enter) To Confirm:";
+        string header = "";
         List<string> options = new List<string>();
         for (int i = 0; i < database.Items.Count; i++)
         {
             options.Add(database.Items[i].Name);
         }
-        //create navigation menu
+        //create navigation menu to choose an item
         int option = Navigation.DisplayNavigation(header, options);
         //get item by index
         Item item = database.GetItemByIndex(option);
-        //remove the item
-        database.Items.Remove(item);
-        //inform that the item is removed
-        Console.WriteLine("Item is now removed! Press any key to conitnue...");
+
+
+        header = $"Are you sure you want to remove this item:({item.Name})? ";
+        options = new List<string>() { "Yes", "No" };
+        //create navigation menu to confirm choice
+        option = Navigation.DisplayNavigation(header, options);
+        switch (option)
+        {
+            case 0:
+                //inform that the item is removed
+                Console.WriteLine("Item is now removed! Press any key to conitnue...");
+                //remove the item
+                database.Items.Remove(item);
+                new DataSerializer<Database>(database).SaveData();
+                break;
+            case 1:
+                Console.WriteLine("Cancelled Removing the item! Press any key to continue...");
+                break;
+
+        }
         Console.ReadKey();
-        new DataSerializer<Database>(database).SaveData();
+
 
     }
     /// <summary>
@@ -201,11 +226,58 @@ class Admin : Account
     /// </summary> <summary>
     /// 
     /// </summary>
-   // TODO: remove user depends on the admins role
-    // public void RemoveUser()
-    // {
-
-    // }
+    public static void RemoveUser(Database database)
+    {
+        //prepare contents of navigation menu.
+        string header = "";
+        List<string> options = new List<string>();
+        //create a userindex list to store the original indexes of the users because the index is not the same after filtering the accounts
+        List<int> userAccountIndexes = new List<int>();
+        for (int i = 0; i < database.AccountData.Count; i++)
+        {
+            //get each account
+            Account account = database.AccountData[i];
+            if (account.IsAdmin)
+            {
+                //skip if the account is admin
+                continue;
+            }
+            else
+            {
+                //add the name of the account to the option
+                options.Add(account.Username);
+                userAccountIndexes.Add(i);
+            }
+        }
+        //create navigation menu to choose a user
+        int option = Navigation.DisplayNavigation(header, options);
+        //create a dictionary to redefine the new indexes because the options index isn't the same as the account index in the list after filtering.
+        Dictionary<int, int> indexDictionary = new Dictionary<int, int>();
+        //for every index in the list
+        for (int i = 0; i < userAccountIndexes.Count; i++)
+        {
+            //add the key as option index order and value to be the value of the user account index
+            indexDictionary.Add(i, userAccountIndexes[i]);
+        }
+        //confirm if the user really wants to remove the account
+        header = $"Are you sure you want to remove this User:({database.GetUserByIndex(indexDictionary[option]).Username})? ";
+        options = new List<string>() { "Yes", "No" };
+        //create navigation menu to confirm choice
+        option = Navigation.DisplayNavigation(header, options);
+        switch (option)
+        {
+            case 0:
+                //remove the account by option and show message
+                database.AccountData.Remove(database.GetUserByIndex(indexDictionary[option]));
+                Console.WriteLine("Account has been removed! Press any key to continue...");
+                break;
+            case 1:
+                //cancell operation
+                Console.WriteLine("cancelled removing account! Press any key to continue...");
+                break;
+        }
+        Console.ReadKey();
+    }
 }
 /// <summary>
 /// child account that Represents a User account with specific functionalites
@@ -230,6 +302,7 @@ class User : Account
     {
         this.Username = username;
         base.PasswordHash = password;
+        IsAdmin = false;
     }
     /// <summary>
     /// Registers a User account in a database
@@ -240,7 +313,7 @@ class User : Account
     public static void Register(string username, string password, Database database)
     {
         //create a user account
-        User user = new User(username, password);
+        User user = new(username, password);
         //save user account in database
         database.SaveUser(user);
     }
@@ -304,8 +377,14 @@ class User : Account
     public void RemoveCartItem()
     {
         //if the item count is greater than 0
-        if (_shoppinCartItems.Count > 0)
+        if (Navigation.CheckAndHandleListEmpty<Item>(_shoppinCartItems, "There are no items in the shopping cart."))
         {
+            return;
+        }
+        else
+        {
+
+
             //prepare contents for navigation menu
             string header = "Which item do you want to remove?";
             List<string> options = new List<string>();
@@ -315,17 +394,26 @@ class User : Account
             }
             //create navigation menu to choose between items.
             int option = Navigation.DisplayNavigation(header, options);
-            //removes the chosen item.
-            _shoppinCartItems.RemoveAt(option);
-            //displays a message to continue.
-            Console.WriteLine("Item is now removed from your shopping cart, press any key to continue...");
-            Console.ReadKey();
-        }
-        else
-        {
-            // show the user that there are no items in the shopping cart.
-            Console.WriteLine($"There are {_shoppinCartItems.Count} Items in the shopping cart.");
-            Console.WriteLine("press any key to continue...");
+
+            header = "Are you sure you want to remove this item from your cart??";
+            options = new List<string>() { "Yes", "No" };
+            //create navigation menu to choose between items.
+            option = Navigation.DisplayNavigation(header, options);
+
+            switch (option)
+            {
+                case 0:
+                    //removes the chosen item.
+                    _shoppinCartItems.RemoveAt(option);
+                    //displays a message to continue.
+                    Console.WriteLine("Item is now removed from your shopping cart, press any key to continue...");
+                    break;
+                case 1:
+                    //cancell
+                    Console.WriteLine("Item Remove cancelled! Press any key to continue...");
+                    break;
+
+            }
             Console.ReadKey();
         }
     }

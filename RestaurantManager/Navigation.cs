@@ -11,7 +11,7 @@ class Navigation
     /// <param name="innitialCursorY"></param>
     /// <param name="jumpsteps"></param>
     /// <returns>the index of the option</returns>
-    public static int DisplayNavigation(string header, List<string> Options, int innitialCursorY = 1, int jumpsteps = 1)
+    public static int DisplayNavigation(string header, List<string> Options,string instruction="Pick a choice and Navigate Using (Up&Down) Arrows And Press (Enter) To Confirm:", int innitialCursorY = 2, int jumpsteps = 1)
     {
         Console.CursorVisible = false;
         //create a variable to store the cursorposition.
@@ -21,6 +21,9 @@ class Navigation
             Console.Clear();
             //write the header or the title
             Console.WriteLine(header);
+        
+            //Print instruction
+            Console.WriteLine(instruction);
             //display every option in the option list.
             foreach (string option in Options)
             {
@@ -63,5 +66,34 @@ class Navigation
                 }
             }
         }
+    }
+    /// <summary>
+    /// confirms Logout and return option
+    /// </summary>
+    /// <returns>option: Yes = 0 and No = 1</returns>
+    public static int ConfirmLogOut()
+    {
+        string header = $"Are you sure you want to Logout? ";
+        List<string> options = new List<string>() { "Yes", "No" };
+        //create navigation menu to confirm choice
+        int option = Navigation.DisplayNavigation(header, options);
+        return option;
+    }
+    /// <summary>
+    /// Checks and handles if item list is empty in the database
+    /// </summary>
+    /// <param name="database"></param>
+    /// <returns>True if item list is empty and False if not</returns>
+    public static bool CheckAndHandleListEmpty<T>(List<T> values, string message)
+    {
+        //check if the item list is empty 
+        if (values.Count == 0)
+        {
+            //display info message
+            Console.WriteLine(message + ", Press any key to continue...");
+            Console.ReadKey();
+            return true;
+        }
+        return false;
     }
 }

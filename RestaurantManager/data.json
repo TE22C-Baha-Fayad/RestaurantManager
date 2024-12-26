@@ -2,12 +2,25 @@
   "AccountData": [
     {
       "Username": "12345678",
-      "PasswordHash": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f"
+      "PasswordHash": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+      "IsAdmin": true
+    },
+    {
+      "Username": "Anders",
+      "PasswordHash": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+      "IsAdmin": false
     },
     {
       "Username": "Baha",
-      "PasswordHash": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f"
+      "PasswordHash": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+      "IsAdmin": false
     }
   ],
-  "Items": [{ "Name": "Pizza", "Description": "margarita", "Price": 245.31 }]
+  "Items": [
+    {
+      "Name": "kebab",
+      "Description": "en helt vanlgi kebab talrik.",
+      "Price": 120
+    }
+  ]
 }

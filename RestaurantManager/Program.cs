@@ -12,16 +12,12 @@ namespace RestaurantManager
             try{//try get data from the data.json file and set database to the loaded data
                 Database loadedData = DataSerializer<Database>.GetData();
                 database = loadedData;
+                database.AccountData = DataSerializer.AccountListConverter(loadedData.AccountData);
             }
-            catch(FileNotFoundException)
+            catch(Exception)
             {
-                //if the file isn't found create a new database instance.
+                //if there are any exceptions then create a new data base and overwrite
                 database = new Database();
-            }
-            catch(JsonException)
-            {
-                //if the database file is corrupted or empty, create a new database and overwrite
-               database = new Database();
             }
             //save the new database if changed.
             new DataSerializer<Database>(database).SaveData();

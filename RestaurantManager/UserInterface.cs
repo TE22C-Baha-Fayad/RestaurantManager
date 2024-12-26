@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Reflection.Metadata;
+using System.Runtime.Serialization;
 
 /// <summary>
 /// The class incharge of managing the UserInterface
@@ -43,23 +44,7 @@ class UserInterface
         }
 
     }
-    /// <summary>
-    /// Checks and handles if item list is empty in the database
-    /// </summary>
-    /// <param name="database"></param>
-    /// <returns>True if item list is empty and False if not</returns>
-    static bool CheckAndHandleItemListEmpty(Database database)
-    {
-        //check if the item list is empty 
-        if (database.Items.Count == 0)
-        {
-            //display info message
-            DisplayMessage("There are no Items, Press any key to return...");
-            Console.ReadKey();
-            return true;
-        }
-        return false;
-    }
+   
     /// <summary>
     /// Display a User account page after login
     /// </summary>
@@ -70,7 +55,7 @@ class UserInterface
         while (true)
         {
             //prepare for a navigation menu for user account
-            string header = $"Hi {user.Username}, what are you willing to do?";
+            string header = $"Hi {user.Username} (User Account), what are you willing to do?";
             List<string> options = new List<string>() { "Browse Items - allows you to browse items and add to your shopping cart.",
             "View Cart - Shows items inside your shopping cart.",
              "Remove Cart Item - Removes an item from your shopping cart.",
@@ -83,7 +68,7 @@ class UserInterface
             switch (option)
             {
                 case 0:
-                    if (CheckAndHandleItemListEmpty(database))
+                    if (Navigation.CheckAndHandleListEmpty<Item>(database.Items, "There are no items in the list"))
                     {
                         //return back to the menu
                         break;
@@ -105,7 +90,19 @@ class UserInterface
                     break;
                 case 5:
                     //Log out
-                    return;
+                    int Choice = Navigation.ConfirmLogOut();
+                    switch (Choice)
+                    {
+                        case 0:
+                            Console.WriteLine("You have been logged out, Press any key to continue...");
+                            Console.ReadKey();
+                            return;
+                        case 1:
+                            Console.WriteLine("Logout cancelled, Press any key to continue...");
+                            Console.ReadKey();
+                            continue;
+                    }
+                    break;
             }
         }
     }
@@ -123,11 +120,12 @@ class UserInterface
         while (true)
         {
             //prepare for an admin navigation page
-            string header = $"Hi {admin.Username}, what are you willing to do?";
+            string header = $"Hi {admin.Username} (Admin Account), what are you willing to do?";
             List<string> options = new List<string>() { "View Items - shows all published items.",
             "List New Item - adds an item for users.",
              "Edit Item - edits properties that belongs to an Item.",
               "Remove an Item - removes a published item.",
+              "Remove a User account - removes a user account from the list",
                "Logout - Returns back to main menu." };
             //build the navigation menu for admin actions
             int option = Navigation.DisplayNavigation(header, options);
@@ -135,10 +133,10 @@ class UserInterface
             switch (option)
             {
                 case 0:
-                    if (CheckAndHandleItemListEmpty(database))
+                    if (Navigation.CheckAndHandleListEmpty<Item>(database.Items, "There are no items in the list"))
                     {
-                        //if the items list is empty then return back to the user menu
-                        continue;
+                        //return back to the menu
+                        break;
                     }
                     //else: show items that are publised by admins
                     Admin.ViewItems(database);
@@ -148,24 +146,52 @@ class UserInterface
                     break;
                 case 2:
 
-                    if (CheckAndHandleItemListEmpty(database))
+                    if (Navigation.CheckAndHandleListEmpty<Item>(database.Items, "There are no items in the list"))
                     {
+                        //return back to the menu
                         continue;
                     }
                     //else: edit item fucntion is called
                     Admin.EditItem(database);
                     break;
                 case 3:
-                    if (CheckAndHandleItemListEmpty(database))
+                    if (Navigation.CheckAndHandleListEmpty<Item>(database.Items, "There are no items in the list"))
                     {
+                        //return back to the menu
                         continue;
                     }
                     //else remove item function is called
                     Admin.RemoveItem(database);
                     break;
                 case 4:
+                    List<User> userAccountList = new List<User>();
+                    foreach (Account account in database.AccountData)
+                    {
+                        if (!account.IsAdmin)
+                            userAccountList.Add((User)account);
+                    }
+                    if (Navigation.CheckAndHandleListEmpty<User>(userAccountList, "There are no Users in the list."))
+                    {
+                        continue;
+                    }
+                    Admin.RemoveUser(database);
+                    break;
+                case 5:
                     //log out
-                    return;
+                    int Choice = Navigation.ConfirmLogOut();
+                    switch (Choice)
+                    {
+                        case 0:
+                            Console.WriteLine("You have been logged out, Press any key to continue...");
+                            Console.ReadKey();
+                            return;
+                        case 1:
+                            Console.WriteLine("Logout cancelled, Press any key to continue...");
+                            Console.ReadKey();
+                            continue;
+                    }
+                    break;
+
             }
         }
     }
@@ -185,7 +211,7 @@ class UserInterface
         {
             //check the type of the account
             //if admin
-            if (account.GetType() == typeof(Admin))
+            if (account.IsAdmin)
             {
                 //Login as admin
                 Admin admin = (Admin)account;
@@ -194,7 +220,7 @@ class UserInterface
                 //display admin page
                 DisplayAdminPage(admin, database);
             }//if user
-            else if (account.GetType() == typeof(User))
+            else
             {
                 //login as user
                 User user = (User)account;
