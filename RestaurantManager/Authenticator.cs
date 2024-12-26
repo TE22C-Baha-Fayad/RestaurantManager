@@ -1,6 +1,9 @@
 using System.Security.Cryptography;
 using System.Text;
 
+/// <summary>
+/// An authenticator class to Manage Security Tasks
+/// </summary>
 class Authenticator
 {
     /// <summary>
@@ -9,18 +12,31 @@ class Authenticator
     /// <param name="users"></param>
     /// <param name="username"></param>
     /// <param name="passwordTxt"></param>
-    /// <returns></returns>
+    /// <returns>Account if an account is found and null if the account isn't found.</returns>
     public static Account ValidateUser(List<Account> users, string username, string passwordTxt)
     {
+        //look for each account in users
         foreach (Account account in users)
         {
-            if (account.username == username && HashPassword(passwordTxt) == account.passwordHash)
+            //if username and passwordhash matches the input
+            if (account.Username == username && HashPassword(passwordTxt) == account.PasswordHash)
             {
+                //return the account that is found
                 return account;
             }
         }
+        //else if no account is found in the account list; return null
         return null;
     }
+    /// <summary>
+    /// A basic function that converts a string to Hash with SHA256 hashing algorithm.
+    /// </summary>
+    /// <param name="password"></param>
+    /// <returns>Hash string</returns> <summary>
+    /// 
+    /// </summary>
+    /// <param name="password"></param>
+    /// <returns></returns>
     public static string HashPassword(string password)
     {
         HashAlgorithm hashAlgorithm = SHA256.Create();
@@ -41,6 +57,17 @@ class Authenticator
         // Return the hexadecimal string.
         return sBuilder.ToString();
     }
+    /// <summary>
+    /// Verifies if the input string is equal to a hash
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="hash"></param>
+    /// <returns>True if they are equal and False if not equal.</returns> <summary>
+    /// 
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="hash"></param>
+    /// <returns></returns>
     public static bool VerifyPassword(string input, string hash)
     {
 

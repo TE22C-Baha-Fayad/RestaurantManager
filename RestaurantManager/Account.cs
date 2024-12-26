@@ -1,18 +1,25 @@
 
-
-using System.Collections;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
-
-class Account
+//Represents a general account with basic login functionality
+class Account : IAccount
 {
-    public string username;
-    public string passwordHash;
+    //declaring properties to store username and passwordhash for an account
+    public string Username { get; protected set; }
+    public string PasswordHash { get; protected set; }
 
+
+
+    /// <summary>
+    /// A function to login an account and validate credentials by a database.
+    /// </summary>
+    /// <param name="username"></param>
+    /// <param name="passwordTxt"></param>
+    /// <param name="database"></param>
+    /// <returns>Account if the account is found or null if the account isn't found.</returns>
     public static Account Login(string username, string passwordTxt, Database database)
     {
-
-        Account account = Authenticator.ValidateUser(database.accountData, username, passwordTxt);
+        //validate if account exists in database
+        Account account = Authenticator.ValidateUser(database.AccountData, username, passwordTxt);
+        //if account exists return account or else return null.
         if (account != null)
         {
             return account;
@@ -20,30 +27,58 @@ class Account
         return null;
     }
 }
+//A child class that represents an Admin account
 class Admin : Account
 {
+    
+    /// <summary>
+    /// a constructor with the parameters username and password to create an admin account.
+    /// </summary>
+    /// <param name="username"></param>
+    /// <param name="password"></param>
     public Admin(string username, string password)
     {
-        this.username = username;
-        passwordHash = password;
+        Username = username;
+        PasswordHash = password;
     }
+    /// <summary>
+    /// Registers an Admin account into a database.
+    /// </summary>
+    /// <param name="username"></param>
+    /// <param name="password"></param>
+    /// <param name="database"></param>
     public static void Register(string username, string password, Database database)
     {
-        Admin user = new Admin(username, password);
-        database.SaveUser(user);
+        //create an admin account.
+        Admin admin = new(username, password);
+        //save to data base
+        database.SaveUser(admin);
     }
-    public void ViewItems(Database database)
+    /// <summary>
+    /// View items list in database.
+    /// </summary>
+    /// <param name="database"></param> <summary>
+    /// 
+    /// </summary>
+    /// <param name="database"></param>
+    public static void ViewItems(Database database)
     {
-        for (int i = 0; i < database.items.Count; i++)
+        //print the information about each Restaurant item in Database.
+        for (int i = 0; i < database.Items.Count; i++)
         {
-            database.items[i].DisplayInfo();
+            database.Items[i].DisplayInfo();
         }
         Console.WriteLine("Press any key to return...");
         Console.ReadKey();
 
     }
-    public void ListNewItem(Database database)
+    /// <summary>
+    /// Lists a new item and adds to items list in database.
+    /// </summary>
+    /// <param name="database"></param>
+    public static void ListNewItem(Database database)
     {
+        //read item name
         Console.Write("Item name:");
         string itemName;
         while (true)
@@ -51,187 +86,291 @@ class Admin : Account
             itemName = Console.ReadLine();
             if (itemName == "")
             {
+                //if item name is empty display this message
                 Console.WriteLine("This field can't be empty");
             }
             else
             {
+                //or else break the loop
                 break;
             }
         }
+        //read item description
         Console.Write("Item Description:");
         string itemDescription = Console.ReadLine();
+        //read item cost
         float itemCost = CredentialPrompts.HandledReadFloat("Item Cost:");
+        //create the item
         Item item = new Item(itemName, itemDescription, itemCost);
-        database.items.Add(item);
+        //save item in items list in a database.
+        database.Items.Add(item);
+        new DataSerializer<Database>(database).SaveData();
     }
-    public void EditItem(Database database)
+    /// <summary>
+    /// edits an item in the items list in a database
+    /// </summary>
+    /// <param name="database"></param>
+    public static void EditItem(Database database)
     {
         while (true)
         {
+            //Prepare contents of a navigation menu.
             string header = "Choose An Item Navigate Using (Up&Down) Arrows And Press (Enter) To Confirm:";
             List<string> options = new List<string>();
-            for (int i = 0; i < database.items.Count; i++)
+            //adds all items names in the database itemslist as options.
+            for (int i = 0; i < database.Items.Count; i++)
             {
-                options.Add(database.items[i].name);
+                options.Add(database.Items[i].Name);
             }
+            //create the navigation and read the picked options index.
             int option = Navigation.DisplayNavigation(header, options);
+            //get item by index in the database
             Item item = database.GetItemByIndex(option);
+            //display the item.
             Console.WriteLine("The item has the following info:");
             item.DisplayInfo();
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
-
+            //previous info were shown and now...
+            //prepare for a new navigation to edit a specific property.
             header = "Choose A Property Navigate Using (Up&Down) Arrows And Press (Enter) To Confirm:";
             options = new List<string>() { "Item Name", "Item Description", "Item Cost", "Return back" };
+            //create the navigation
             option = Navigation.DisplayNavigation(header, options);
 
 
             switch (option)
             {
                 case 0:
+                    //if the option is 0 then shows the Edit item name screen
                     Console.Write("Item Name:");
-                    item.name = Console.ReadLine();
+                    item.Name = Console.ReadLine();
                     Console.WriteLine("Item name changed successfully! Press any key to conitnue...");
                     Console.ReadKey();
-
                     return;
                 case 1:
+                    //if the option is 1 then shows the Edit item description screen
                     Console.Write("Item Description:");
-                    item.description = Console.ReadLine();
+                    item.Description = Console.ReadLine();
                     Console.WriteLine("Item Description changed successfully! Press any key to conitnue...");
                     Console.ReadKey();
                     return;
                 case 2:
-                    item.price = CredentialPrompts.HandledReadFloat("Item Cost:");
-                    Console.WriteLine("Item Cost changed successfully! Press any key to conitnue...");
+                    //if the option is 2 then shows the Edit item price screen
+                    item.Price = CredentialPrompts.HandledReadFloat("Item Price:");
+                    Console.WriteLine("Item Price changed successfully! Press any key to conitnue...");
                     Console.ReadKey();
                     return;
                 case 3:
+                    //if the option is 3 then return.
                     return;
             }
 
         }
 
     }
-    public void RemoveItem(Database database)
+    /// <summary>
+    /// Removes an item from the items list in the database.
+    /// </summary>
+    /// <param name="database"></param> <summary>
+    /// </summary>
+    /// <param name="database"></param>
+    public static void RemoveItem(Database database)
     {
-
+        //prepare contents of navigation menu.
         string header = "Choose An Item Navigate Using (Up&Down) Arrows And Press (Enter) To Confirm:";
         List<string> options = new List<string>();
-        for (int i = 0; i < database.items.Count; i++)
+        for (int i = 0; i < database.Items.Count; i++)
         {
-            options.Add(database.items[i].name);
+            options.Add(database.Items[i].Name);
         }
+        //create navigation menu
         int option = Navigation.DisplayNavigation(header, options);
+        //get item by index
         Item item = database.GetItemByIndex(option);
-        database.items.Remove(item);
+        //remove the item
+        database.Items.Remove(item);
+        //inform that the item is removed
         Console.WriteLine("Item is now removed! Press any key to conitnue...");
         Console.ReadKey();
+        new DataSerializer<Database>(database).SaveData();
 
     }
+    /// <summary>
+    /// Removes a user in a data base.
+    /// </summary> <summary>
+    /// 
+    /// </summary>
+   // TODO: remove user depends on the admins role
+    // public void RemoveUser()
+    // {
+
+    // }
 }
+/// <summary>
+/// child account that Represents a User account with specific functionalites
+/// </summary>
 class User : Account
 {
-    private List<Item> ShoppinCartItems = new List<Item>();
-    private float credits = 1000;
+    //list of items to store items for as a shoppingcart.
+    private List<Item> _shoppinCartItems = new List<Item>();
+
+    //a filed to store the credits a user owns.
+    private float _credits = 1000;
+    /// <summary>
+    /// A basic constructor to create a User Account 
+    /// </summary>
+    /// <param name="username"></param>
+    /// <param name="password"></param> <summary>
+    /// 
+    /// </summary>
+    /// <param name="username"></param>
+    /// <param name="password"></param>
     public User(string username, string password)
     {
-        this.username = username;
-        base.passwordHash = password;
+        this.Username = username;
+        base.PasswordHash = password;
     }
+    /// <summary>
+    /// Registers a User account in a database
+    /// </summary>
+    /// <param name="username"></param>
+    /// <param name="password"></param>
+    /// <param name="database"></param>
     public static void Register(string username, string password, Database database)
     {
+        //create a user account
         User user = new User(username, password);
+        //save user account in database
         database.SaveUser(user);
     }
-    public void PresentShoppingCart()
+    /// <summary>
+    /// prints shopping cart properties
+    /// </summary>
+    private void PresentShoppingCart()
     {
-        Console.WriteLine($"There are {ShoppinCartItems.Count} Items in your shopping cart.");
+        Console.WriteLine($"There are {_shoppinCartItems.Count} Items in your shopping cart.");
         float totalPrice = 0;
-        foreach (Item item in ShoppinCartItems)
+        foreach (Item item in _shoppinCartItems)
         {
-            totalPrice += item.price;
+            totalPrice += item.Price;
         }
         Console.WriteLine($"Total Price: {totalPrice}kr");
-        Console.WriteLine($"Your Credits: {credits}kr");
+        Console.WriteLine($"Your Credits: {_credits}kr");
         Console.WriteLine();
         Console.WriteLine("Items:");
-        for (int i = 0; i < ShoppinCartItems.Count; i++)
+        for (int i = 0; i < _shoppinCartItems.Count; i++)
         {
-            ShoppinCartItems[i].DisplayInfo();
+            _shoppinCartItems[i].DisplayInfo();
         }
     }
+    /// <summary>
+    /// Browse Items published by admins
+    /// </summary>
+    /// <param name="database"></param>
     public void BrowseItems(Database database)
     {
+        //prepare contents for a navigation menu.
         string header = $"Available Items:";
         List<string> options = new List<string>();
-        for (int i = 0; i < database.items.Count; i++)
+        for (int i = 0; i < database.Items.Count; i++)
         {
-            options.Add(database.items[i].GetInfo());
+            options.Add(database.Items[i].GetInfo());
         }
+        //create a navigation menu to pick an item.
         int option = Navigation.DisplayNavigation(header, options);
-        ShoppinCartItems.Add(database.GetItemByIndex(option));
+        //add the chosed item in the shoppingcart.
+        _shoppinCartItems.Add(database.GetItemByIndex(option));
+        //display message and continue.
         Console.WriteLine("Item were added to your shopping cart, press any key to continue...");
         Console.ReadKey();
     }
+    /// <summary>
+    /// prints cart items
+    /// </summary> <summary>
+    /// 
+    /// </summary>
     public void ViewCartItems()
     {
+
         PresentShoppingCart();
+        //display message to continue
         Console.WriteLine("press any key to continue...");
         Console.ReadKey();
     }
+    /// <summary>
+    /// Removes an item from The shopping Cart.
+    /// </summary>
     public void RemoveCartItem()
     {
-        if (ShoppinCartItems.Count > 0)
+        //if the item count is greater than 0
+        if (_shoppinCartItems.Count > 0)
         {
+            //prepare contents for navigation menu
             string header = "Which item do you want to remove?";
             List<string> options = new List<string>();
-            for (int i = 0; i < ShoppinCartItems.Count; i++)
+            for (int i = 0; i < _shoppinCartItems.Count; i++)
             {
-                options.Add(ShoppinCartItems[i].GetInfo());
+                options.Add(_shoppinCartItems[i].GetInfo());
             }
+            //create navigation menu to choose between items.
             int option = Navigation.DisplayNavigation(header, options);
-            ShoppinCartItems.RemoveAt(option);
+            //removes the chosen item.
+            _shoppinCartItems.RemoveAt(option);
+            //displays a message to continue.
             Console.WriteLine("Item is now removed from your shopping cart, press any key to continue...");
             Console.ReadKey();
         }
         else
         {
-            Console.WriteLine($"There are {ShoppinCartItems.Count} Items in the shopping cart.");
+            // show the user that there are no items in the shopping cart.
+            Console.WriteLine($"There are {_shoppinCartItems.Count} Items in the shopping cart.");
             Console.WriteLine("press any key to continue...");
             Console.ReadKey();
         }
     }
+    /// <summary>
+    /// A function to checkout for items added in the shopping cart.
+    /// </summary>
     public void CheckOut()
     {
+        //present items in the cart
         PresentShoppingCart();
         Console.WriteLine("Press any key to continue...");
         Console.ReadKey();
+        //prepare navigation menu to confirm if the user want to buy the items.
         string header = "Are you sure you want to buy these items?";
         List<string> options = new List<string>() { "Yes", "No" };
         int option = Navigation.DisplayNavigation(header, options);
+        //counts the total price to pay
         float totalPrice = 0;
-        foreach (Item item in ShoppinCartItems)
+        foreach (Item item in _shoppinCartItems)
         {
-            totalPrice += item.price;
+            totalPrice += item.Price;
         }
         switch (option)
         {
             case 0:
-                if (credits >= totalPrice)
+                //if  yes and the credits are greater than or equal to the total price 
+                if (_credits >= totalPrice)
                 {
-                    credits -= totalPrice;
+                    //subtract the total price from the credits
+                    _credits -= totalPrice;
+                    //display that the items are ordered
                     Console.WriteLine("Items are now ordered!");
-                    ShoppinCartItems.Clear();
+                    //clear the shopping cart.
+                    _shoppinCartItems.Clear();
                 }
                 else
                 {
+                    //display that there are no sufficent funds
                     Console.WriteLine("Error: Insufficent funds");
                 }
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey();
                 break;
             case 1:
+                //if no then cancell payment.
                 Console.WriteLine("Payment Cancelled! Press any key to continue...");
                 Console.ReadKey();
                 break;
@@ -239,35 +378,47 @@ class User : Account
 
 
     }
+    /// <summary>
+    /// A function to view or add credits.
+    /// </summary>
     public void SeeOrAddCredits()
     {
-        string header = $"You have {credits}kr available, do you want to add more Credits?";
+        //prepare for a navigation menu to view credits and ask if the user wants to add more credits.
+        string header = $"You have {_credits}kr available, do you want to add more Credits?";
         List<string> options = new List<string>() { "Yes", "No" };
         int option = Navigation.DisplayNavigation(header, options);
 
         switch (option)
         {
             case 0:
+                //if yes add credits
                 AddCredits();
                 break;
             case 1:
+                //if no cancell
                 break;
         }
 
-
+        /// <summary>
+        /// A Handled function to add more Credits to a user account
+        /// </summary>
         void AddCredits()
-        {
+        {   //ask the user for the requiruments to add the ammount
             Console.WriteLine("How much do you want to add?");
-            float count = CredentialPrompts.HandledReadFloat("Ammount: ");
+            float ammount = CredentialPrompts.HandledReadFloat("Ammount: ");
+            //ask the user for his password to confirm the operation
             string inputPassword = CredentialPrompts.HandledReadPassword("Please Enter your password to confirm: ");
-            if (Authenticator.HashPassword(inputPassword) == passwordHash)
+            //if the password is correct
+            if (Authenticator.HashPassword(inputPassword) == PasswordHash)
             {
-                credits += count;
+                //add the ammount and display the info message
+                _credits += ammount;
                 Console.WriteLine("Credits are now added, press any key to continue...");
                 Console.ReadKey();
             }
             else
             {
+                //if the password is wrong, show a message.
                 Console.WriteLine("Wrong password! Credits not added, press any key to return...");
                 Console.ReadKey();
             }
