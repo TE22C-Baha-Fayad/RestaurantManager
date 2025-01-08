@@ -7,11 +7,11 @@ class Navigation
     /// Prints A navigation menu with a header and options to let the user pick from 
     /// </summary>
     /// <param name="header"></param>
-    /// <param name="Options"></param>
+    /// <param name="options"></param>
     /// <param name="innitialCursorY"></param>
     /// <param name="jumpsteps"></param>
     /// <returns>the index of the option</returns>
-    public static int DisplayNavigation(string header, List<string> Options,string instruction="Pick a choice and Navigate Using (Up&Down) Arrows And Press (Enter) To Confirm:", int innitialCursorY = 2, int jumpsteps = 1)
+    public static int DisplayNavigation(string header, List<string> options,string instruction="Pick a choice and Navigate Using (Up&Down) Arrows And Press (Enter) To Confirm:", int innitialCursorY = 2, int jumpsteps = 1)
     {
         Console.CursorVisible = false;
         //create a variable to store the cursorposition.
@@ -25,7 +25,7 @@ class Navigation
             //Print instruction
             Console.WriteLine(instruction);
             //display every option in the option list.
-            foreach (string option in Options)
+            foreach (string option in options)
             {
                 Console.WriteLine($"  {option}");
             }
@@ -44,7 +44,7 @@ class Navigation
                 cursorYPosition -= jumpsteps;
 
             }
-            else if (key == ConsoleKey.DownArrow && cursorYPosition < innitialCursorY + Options.Count - 1)
+            else if (key == ConsoleKey.DownArrow && cursorYPosition < innitialCursorY + options.Count - 1)
             {
                 //adds jumpsteps to navigate downwards
                 cursorYPosition += jumpsteps;
@@ -55,7 +55,7 @@ class Navigation
                 //define cursor y position
                 int currnetCursorY = Console.GetCursorPosition().Top;
                 //loop through each option
-                for (int i = 0; i < Options.Count; i++)
+                for (int i = 0; i < options.Count; i++)
                 {
                     if (currnetCursorY == i + innitialCursorY)
                     {
