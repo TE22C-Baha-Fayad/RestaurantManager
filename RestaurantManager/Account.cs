@@ -1,6 +1,7 @@
 
 //Represents a general account with basic login functionality
 using System.Collections;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 
@@ -107,13 +108,26 @@ class Admin : Account
         //read item description
         Console.Write("Item Description:");
         string itemDescription = Console.ReadLine();
-        //read item cost
-        float itemCost = CredentialPrompts.HandledReadFloat("Item Cost:");
-        //create the item
-        Item item = new Item(itemName, itemDescription, itemCost);
-        //save item in items list in a database.
-        database.Items.Add(item);
-        new DataSerializer<Database>(database).SaveData();
+        while (true)
+        {
+            //read item price
+            float itemPrice = CredentialPrompts.HandledReadFloat("Item Price:");
+            if (itemPrice > 0)
+            {
+                //create the item
+                Item item = new Item(itemName, itemDescription, itemPrice);
+                //save item in items list in a database.
+                database.Items.Add(item);
+                new DataSerializer<Database>(database).SaveData();
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Item price must be greater than 0, Press any key to try again...");
+                Console.ReadKey();
+            }
+        }
+
     }
     /// <summary>
     /// edits an item in the items list in a database
@@ -143,7 +157,7 @@ class Admin : Account
             //previous info were shown and now...
             //prepare for a new navigation to edit a specific property.
             header = "";
-            options = new List<string>() { "Item Name", "Item Description", "Item Cost", "Return back" };
+            options = new List<string>() { "Item Name", "Item Description", "Item Price", "Return back" };
             //create the navigation
             option = Navigation.DisplayNavigation(header, options);
 
@@ -166,7 +180,20 @@ class Admin : Account
                     return;
                 case 2:
                     //if the option is 2 then shows the Edit item price screen
-                    item.Price = CredentialPrompts.HandledReadFloat("Item Price:");
+                    while (true)
+                    {
+                        float price = CredentialPrompts.HandledReadFloat("Item Price:");
+                        if (price > 0)
+                        {
+                            item.Price = price;
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Item price must be greater than 0, Press any key to try again...");
+                            Console.ReadKey();
+                        }
+                    }
                     Console.WriteLine("Item Price changed successfully! Press any key to conitnue...");
                     Console.ReadKey();
                     return;

@@ -15,13 +15,13 @@ class CredentialPrompts
             //print context question
             Console.Write(context);
             //read string
-            string costString = Console.ReadLine();
-            float cost;
+            string ammountString = Console.ReadLine();
+            float ammount;
             //tryparse the string into float
-            if (float.TryParse(costString, out cost))
+            if (float.TryParse(ammountString, out ammount))
             {
                 //if succeed return cost
-                return cost;
+                return ammount;
             }
             else
             {
