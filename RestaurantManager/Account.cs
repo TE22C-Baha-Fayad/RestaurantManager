@@ -491,28 +491,39 @@ class User : Account
         /// A Handled function to add more Credits to a user account
         /// </summary>
         void AddCredits()
-        {   //ask the user for the requiruments to add the ammount
-            Console.WriteLine("How much do you want to add?");
-            float ammount = CredentialPrompts.HandledReadFloat("Ammount: ");
-            //ask the user for his password to confirm the operation
-            string inputPassword = CredentialPrompts.HandledReadPassword("Please Enter your password to confirm: ");
-            //if the password is correct
-            if (Authenticator.HashPassword(inputPassword) == PasswordHash)
+        {
+            while (true)
             {
-                //add the ammount and display the info message
-                _credits += ammount;
-                Console.WriteLine("Credits are now added, press any key to continue...");
-                Console.ReadKey();
-            }
-            else
-            {
-                //if the password is wrong, show a message.
-                Console.WriteLine("Wrong password! Credits not added, press any key to return...");
-                Console.ReadKey();
+                //ask the user for the requiruments to add the ammount
+                Console.WriteLine("How much do you want to add?");
+                float ammount = CredentialPrompts.HandledReadFloat("Ammount: ");
+                if (ammount > 0)
+                {
+                    //ask the user for his password to confirm the operation
+                    string inputPassword = CredentialPrompts.HandledReadPassword("Please Enter your password to confirm: ");
+                    //if the password is correct
+                    if (Authenticator.HashPassword(inputPassword) == PasswordHash)
+                    {
+                        //add the ammount and display the info message
+                        _credits += ammount;
+                        Console.WriteLine($"{ammount}kr are now added, press any key to continue...");
+                        Console.ReadKey();
+                    }
+                    else
+                    {
+                        //if the password is wrong, show a message.
+                        Console.WriteLine("Wrong password! Credits not added, press any key to return...");
+                        Console.ReadKey();
+                    }
+                    break;
+                }
+                else
+                {
+                    //if the ammount is less than 0 
+                    Console.WriteLine("Please Enter a value greater than or equal to 0, press any key to return...");
+                    Console.ReadKey();
+                }
             }
         }
-
     }
-
-
 }
